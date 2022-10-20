@@ -1944,16 +1944,35 @@ __webpack_require__.r(__webpack_exports__);
   name: 'MyMain',
   data: function data() {
     return {
-      posts: []
+      posts: [],
+      currentPage: 1,
+      lastPage: null,
+      loading: true
     };
   },
   methods: {
-    getPosts: function getPosts() {
+    getPosts: function getPosts(page) {
       var _this = this;
 
-      axios.get('/api/post').then(function (response) {
-        _this.posts = response.data.results;
+      this.loading = true;
+      axios.get('/api/post', {
+        params: {
+          page: page
+        }
+      }).then(function (response) {
+        _this.posts = response.data.results.data;
+        _this.loading = false;
+        _this.currentPage = response.data.results.current_page;
+        _this.lastPage = response.data.results.last_page;
       });
+    },
+    //accorciare il testo 
+    cutText: function cutText(text, maxLength) {
+      if (text.length < maxLength) {
+        return text;
+      } else {
+        return text.substring(0, maxLength) + '...';
+      }
     }
   },
   mounted: function mounted() {
@@ -2070,7 +2089,9 @@ var render = function render() {
     staticClass: "container"
   }, [_c("h1", {
     staticClass: "my-4"
-  }, [_vm._v("Bacheca")]), _vm._v(" "), _c("div", {
+  }, [_vm._v("Bacheca")]), _vm._v(" "), _vm.loading ? _c("div", {
+    staticClass: "d-flex justify-content-center"
+  }, [_vm._m(0)]) : _c("div", {
     staticClass: "row"
   }, _vm._l(_vm.posts, function (post, index) {
     return _c("div", {
@@ -2085,7 +2106,7 @@ var render = function render() {
       staticClass: "card-title"
     }, [_vm._v(_vm._s(post.title))]), _vm._v(" "), _c("p", {
       staticClass: "card-text"
-    }, [_vm._v(_vm._s(post.content))]), _vm._v(" "), _c("p", {
+    }, [_vm._v(_vm._s(_vm.cutText(post.content, 150)))]), _vm._v(" "), _c("p", {
       staticClass: "card-text"
     }, [_vm._v(_vm._s(post.category ? post.category.name : "-"))]), _vm._v(" "), _c("a", {
       staticClass: "btn btn-primary",
@@ -2093,10 +2114,61 @@ var render = function render() {
         href: "#"
       }
     }, [_vm._v("Read more...")])])]);
-  }), 0)]);
+  }), 0), _vm._v(" "), _c("nav", {
+    attrs: {
+      "aria-label": "..."
+    }
+  }, [_c("ul", {
+    staticClass: "pagination"
+  }, [_c("li", {
+    staticClass: "page-item",
+    "class": _vm.currentPage == 1 ? "disabled" : ""
+  }, [_c("a", {
+    staticClass: "page-link",
+    attrs: {
+      href: "#"
+    },
+    on: {
+      click: function click($event) {
+        return _vm.getPosts(_vm.currentPage - 1);
+      }
+    }
+  }, [_vm._v("Previous")])]), _vm._v(" "), _c("li", {
+    staticClass: "page-item disable"
+  }, [_c("span", {
+    staticClass: "page-link",
+    attrs: {
+      href: "#"
+    }
+  }, [_vm._v(_vm._s(_vm.currentPage) + "/" + _vm._s(_vm.lastPage))])]), _vm._v(" "), _c("li", {
+    staticClass: "page-item",
+    "class": _vm.currentPage == _vm.lastPage ? "disabled" : ""
+  }, [_c("a", {
+    staticClass: "page-link",
+    attrs: {
+      href: "#"
+    },
+    on: {
+      click: function click($event) {
+        return _vm.getPosts(_vm.currentPage + 1);
+      }
+    }
+  }, [_vm._v("Next")])])])])]);
 };
 
-var staticRenderFns = [];
+var staticRenderFns = [function () {
+  var _vm = this,
+      _c = _vm._self._c;
+
+  return _c("div", {
+    staticClass: "spinner-border text-primary",
+    attrs: {
+      role: "status"
+    }
+  }, [_c("span", {
+    staticClass: "sr-only"
+  }, [_vm._v("Loading...")])]);
+}];
 render._withStripped = true;
 
 
@@ -14667,8 +14739,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _views_App__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./views/App */ "./resources/js/views/App.vue");
-window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js"); //window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
 
 
 var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
